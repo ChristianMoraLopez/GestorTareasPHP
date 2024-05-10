@@ -25,54 +25,57 @@ Por ejemplo, si el archivo PHP actual se llama "formulario.php" y se encuentra e
 Esto permite que el formulario envíe los datos al mismo script PHP que lo procesa.
         
         Y el método post se utiliza para enviar datos al servidor. -->
-            <input type="text" name="descripcion" placeholder="Descripción de la tarea" required>
+        <input type="text" name="descripcion" placeholder="Descripción de la tarea" required>
             <button type="submit" name="agregar">Agregar Tarea</button>
         </form>
         <ul>
         <?php
-        $archivo_tareas = 'tareas.json';
-        if (file_exists($archivo_tareas)) {
-            $contenido = file_get_contents($archivo_tareas);
-            $tareas = json_decode($contenido, true);
-        } else {
-            $tareas = [];
-            file_put_contents($archivo_tareas, json_encode($tareas, JSON_PRETTY_PRINT));
-        }
-        // Verificamos si se ha enviado una solicitud POST y si se ha enviado el formulario de agregar tarea.
-        if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['agregar'])) {
-            $descripcion = $_POST['descripcion'];
-            $tareas[] = ['descripcion' => $descripcion, 'completada' => false];
-            file_put_contents($archivo_tareas, json_encode($tareas, JSON_PRETTY_PRINT));
-        }
-
-        // Verificamos si se ha enviado una solicitud POST y si se ha enviado el formulario de eliminar tarea.
-        if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['eliminar'])) {
-            $indice = $_POST['indice'];
-            unset($tareas[$indice]);
-            file_put_contents($archivo_tareas, json_encode($tareas, JSON_PRETTY_PRINT));
-        }
-
-        if (!empty($tareas)) {
-            foreach ($tareas as $indice => $tarea) {
-                echo '<li';
-                if ($tarea['completada']) {
-                    echo ' style="text-decoration: line-through; color: darkgray;"';
-                }
-                echo '>' . $tarea['descripcion'] . '
-                    <form method="post" style="display: inline;">
-                        <input type="hidden" name="indice" value="' . $indice . '">
-                        <button type="submit" name="eliminar">(X)</button>
-                    </form>
-                    <form method="post" style="display: inline;">
-                        <input type="hidden" name="completar" value="' . $indice . '">
-                        <button type="submit">Completar</button>
-                    </form>
-                </li>';
+            $archivo_tareas = 'tareas.json';
+            if (file_exists($archivo_tareas)) {
+                $contenido = file_get_contents($archivo_tareas);
+                $tareas = json_decode($contenido, true);
+            } else {
+                $tareas = [];
+                file_put_contents($archivo_tareas, json_encode($tareas, JSON_PRETTY_PRINT));
             }
-        } else {
-            echo '<li>No hay tareas pendientes.</li>';
-        }
-        ?>
+
+            if ($_SERVER["REQUEST_METHOD"] == "POST") {
+                if (isset($_POST['agregar'])) {
+                    $descripcion = $_POST['descripcion'];
+                    $tareas[] = ['descripcion' => $descripcion, 'completada' => false];
+                    file_put_contents($archivo_tareas, json_encode($tareas, JSON_PRETTY_PRINT));
+                } elseif (isset($_POST['eliminar'])) {
+                    $indice = $_POST['indice'];
+                    unset($tareas[$indice]);
+                    file_put_contents($archivo_tareas, json_encode($tareas, JSON_PRETTY_PRINT));
+                } elseif (isset($_POST['completar'])) {
+                    $indice = $_POST['completar'];
+                    $tareas[$indice]['completada'] = true;
+                    file_put_contents($archivo_tareas, json_encode($tareas, JSON_PRETTY_PRINT));
+                }
+            }
+
+            if (!empty($tareas)) {
+                foreach ($tareas as $indice => $tarea) {
+                    echo '<li';
+                    if ($tarea['completada']) {
+                        echo ' style="text-decoration: line-through; color: darkgray;"';
+                    }
+                    echo '>' . $tarea['descripcion'] . '
+                        <form method="post" style="display: inline;">
+                            <input type="hidden" name="indice" value="' . $indice . '">
+                            <button type="submit" name="eliminar">(X)</button>
+                        </form>
+                        <form method="post" style="display: inline;">
+                            <input type="hidden" name="completar" value="' . $indice . '">
+                            <button type="submit">Completar</button>
+                        </form>
+                    </li>';
+                }
+            } else {
+                echo '<li>No hay tareas pendientes.</li>';
+            }
+            ?>
         </ul>
     </div>
 </body>
