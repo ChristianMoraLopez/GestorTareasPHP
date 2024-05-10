@@ -1,6 +1,6 @@
 <?php
-if (isset($_GET['nombre_archivo'])) {
-    $nombre_archivo = $_GET['nombre_archivo'];
+if(isset($_GET['nombre_archivo'])){
+    $nombre_archivo = trim($_GET['nombre_archivo']);
     $archivo_tareas = $nombre_archivo . '.json';
     
     if (file_exists($archivo_tareas)) {
