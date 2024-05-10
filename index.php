@@ -1,7 +1,7 @@
 <?php
 if(isset($_GET['nombre_archivo'])){
     $nombre_archivo = trim($_GET['nombre_archivo']);
-    $archivo_tareas = $nombre_archivo . '.json';
+    $archivo_tareas = trim($nombre_archivo . '.json');
     
     if (file_exists($archivo_tareas)) {
         // El archivo de la lista de tareas existe, redirigir o mostrar un mensaje de éxito
