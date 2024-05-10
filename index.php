@@ -54,23 +54,27 @@ Esto permite que el formulario envíe los datos al mismo script PHP que lo proce
                     file_put_contents($archivo_tareas, json_encode($tareas, JSON_PRETTY_PRINT));
                 }
             }
-
             if (!empty($tareas)) {
                 foreach ($tareas as $indice => $tarea) {
                     echo '<li';
                     if ($tarea['completada']) {
                         echo ' style="text-decoration: line-through; color: darkgray;"';
                     }
-                    echo '>' . $tarea['descripcion'] . '
-                        <form method="post" style="display: inline;">
+                    echo '>' . $tarea['descripcion'];
+            
+                    // Botón de eliminar
+                    echo '<form method="post" style="display: inline;">
                             <input type="hidden" name="indice" value="' . $indice . '">
                             <button type="submit" name="eliminar">(X)</button>
-                        </form>
-                        <form method="post" style="display: inline;">
+                          </form>';
+            
+                    // Botón de completar
+                    echo '<form method="post" style="display: inline;">
                             <input type="hidden" name="completar" value="' . $indice . '">
                             <button type="submit">Completar</button>
-                        </form>
-                    </li>';
+                          </form>';
+            
+                    echo '</li>';
                 }
             } else {
                 echo '<li>No hay tareas pendientes.</li>';
