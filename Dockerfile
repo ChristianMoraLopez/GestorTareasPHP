@@ -7,6 +7,9 @@ FROM php:7.4-apache
 # Copia los archivos de la aplicación al contenedor
 COPY . /var/www/html
 
+# Cambia los permisos del archivo tareas.json para que sea escribible
+RUN chmod 666 /var/www/html/tareas.json
+
 # Expone el puerto 80 para el servidor web Apache
 EXPOSE 80
 
