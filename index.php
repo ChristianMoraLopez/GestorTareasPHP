@@ -26,7 +26,7 @@ if (isset($_GET['nombre_archivo'])) {
 <body>
 
     <div class="container">
-        <h1>Editar Tareas</h1>
+        <h1>Escribe el nombre de la lista de tareas</h1>
         
         <form action="gestordetareas.php" method="get">
             <input type="text" name="nombre_archivo" placeholder="Nombre de tu lista de tareas" required>
