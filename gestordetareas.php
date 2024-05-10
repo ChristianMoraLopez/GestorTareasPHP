@@ -45,7 +45,7 @@ $tareas = cargar_tareas($archivo_tareas);
 
     <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>?nombre_archivo=<?php echo urlencode($nombre_archivo); ?>" method="post">
     <input type="text" name="descripcion" placeholder="Descripción de la tarea" required>
-        <button type="submit" name="agregar">Agregar Tarea</button>
+        <button type="submit" name="agregar" autocomplete="off">Agregar Tarea</button>
     </form>
 
     <ul>
