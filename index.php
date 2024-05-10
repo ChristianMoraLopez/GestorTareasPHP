@@ -29,38 +29,50 @@ Esto permite que el formulario envíe los datos al mismo script PHP que lo proce
             <button type="submit" name="agregar">Agregar Tarea</button>
         </form>
         <ul>
-            <?php
-            // Iniciamos una etiqueta de php para poder hacer uso de las variables superglobales $_SERVER y $_POST.
-            // Se ejecutará en el servidor ante de que se envíe la página al cliente.
+        <?php
+        $archivo_tareas = 'tareas.json';
+        if (file_exists($archivo_tareas)) {
+            $contenido = file_get_contents($archivo_tareas);
+            $tareas = json_decode($contenido, true);
+        } else {
+            $tareas = [];
+            file_put_contents($archivo_tareas, json_encode($tareas, JSON_PRETTY_PRINT));
+        }
+        // Verificamos si se ha enviado una solicitud POST y si se ha enviado el formulario de agregar tarea.
+        if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['agregar'])) {
+            $descripcion = $_POST['descripcion'];
+            $tareas[] = ['descripcion' => $descripcion, 'completada' => false];
+            file_put_contents($archivo_tareas, json_encode($tareas, JSON_PRETTY_PRINT));
+        }
 
-            $archivo_tareas = 'tareas.json';
-            //Cargar las tareas desde el archivo json
-            if (file_exists($archivo_tareas)) {
-                $contenido = file_get_contents($archivo_tareas);
-                $tareas = json_decode($contenido, true);
-            } else {
-                $tareas = [];
-                file_put_contents($archivo_tareas, json_encode($tareas, JSON_PRETTY_PRINT));
-            }
-            
-            // Manejar la adición de nuevas tareas
-            if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['agregar'])) {
-                $descripcion = $_POST['descripcion'];
-                $tareas[] = ['descripcion' => $descripcion, 'completada' => false];
-                file_put_contents($archivo_tareas, json_encode($tareas, JSON_PRETTY_PRINT));
-            }
-            
-            // Mostrar las tareas
-            if (!empty($tareas)) {
-                foreach ($tareas as $tarea) {
-                    echo '<li>' . $tarea['descripcion'] . '</li>';
+        // Verificamos si se ha enviado una solicitud POST y si se ha enviado el formulario de eliminar tarea.
+        if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['eliminar'])) {
+            $indice = $_POST['indice'];
+            unset($tareas[$indice]);
+            file_put_contents($archivo_tareas, json_encode($tareas, JSON_PRETTY_PRINT));
+        }
+
+        if (!empty($tareas)) {
+            foreach ($tareas as $indice => $tarea) {
+                echo '<li';
+                if ($tarea['completada']) {
+                    echo ' style="text-decoration: line-through; color: darkgray;"';
                 }
-            } else {
-                echo '<li>No hay tareas pendientes.</li>';
+                echo '>' . $tarea['descripcion'] . '
+                    <form method="post" style="display: inline;">
+                        <input type="hidden" name="indice" value="' . $indice . '">
+                        <button type="submit" name="eliminar">(X)</button>
+                    </form>
+                    <form method="post" style="display: inline;">
+                        <input type="hidden" name="completar" value="' . $indice . '">
+                        <button type="submit">Completar</button>
+                    </form>
+                </li>';
             }
-            
-            
-            ?>
+        } else {
+            echo '<li>No hay tareas pendientes.</li>';
+        }
+        ?>
         </ul>
     </div>
 </body>
