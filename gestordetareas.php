@@ -4,6 +4,15 @@ function guardar_tareas($archivo, $tareas) {
     file_put_contents($archivo, json_encode($tareas));
 }
 
+function tarea_existe($tareas, $descripcion) {
+    foreach ($tareas as $tarea) {
+        if ($tarea['descripcion'] === $descripcion) {
+            return true;
+        }
+    }
+    return false;
+}
+
 // Función para cargar las tareas desde un archivo JSON
 function cargar_tareas($archivo) {
     if (file_exists($archivo)) {
@@ -53,12 +62,16 @@ $tareas = cargar_tareas($archivo_tareas);
         if (isset($_POST['agregar'])) {
             // Código PHP para agregar una tarea
             $descripcion = $_POST['descripcion'];
-            $tarea = [
-                'descripcion' => $descripcion,
-                'completada' => false
-            ];
-            $tareas[] = $tarea;
-            guardar_tareas($archivo_tareas, $tareas);
+            if (!tarea_existe($tareas, $descripcion)){
+
+                $tarea = [
+                    'descripcion' => $descripcion,
+                    'completada' => false
+                ];
+                $tareas[] = $tarea;
+            
+                guardar_tareas($archivo_tareas, $tareas);
+            }
         } elseif (isset($_POST['eliminar'])) {
             // Código PHP para eliminar una tarea
             $indice = $_POST['indice'];
