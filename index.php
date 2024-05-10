@@ -30,7 +30,7 @@ Esto permite que el formulario envíe los datos al mismo script PHP que lo proce
         </form>
         <ul>
         <?php
-            $archivo_tareas = 'tareas.json';
+            $archivo_tareas = '/tareas.json';
             if (file_exists($archivo_tareas)) {
                 $contenido = file_get_contents($archivo_tareas);
                 $tareas = json_decode($contenido, true);
