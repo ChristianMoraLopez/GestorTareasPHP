@@ -35,6 +35,45 @@ if (isset($_GET['nombre_archivo'])) {
 
 // Cargar las tareas existentes
 $tareas = cargar_tareas($archivo_tareas);
+
+// Manejar el envío del formulario para agregar tareas
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['agregar'])) {
+    $descripcion = $_POST['descripcion'];
+    // Verificar si la tarea ya existe
+    if (!tarea_existe($tareas, $descripcion)) {
+        // Agregar la nueva tarea al array de tareas
+        $tareas[] = array(
+            'descripcion' => $descripcion,
+            'completada' => false
+        );
+        // Guardar las tareas actualizadas
+        guardar_tareas($archivo_tareas, $tareas);
+        // Recargar la página para mostrar la nueva tarea
+        header("Refresh:0");
+    }
+}
+
+// Manejar el envío del formulario para completar una tarea
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['completar'])) {
+    $indice = $_POST['completar'];
+    // Marcar la tarea como completada
+    $tareas[$indice]['completada'] = !$tareas[$indice]['completada'];
+    // Guardar las tareas actualizadas
+    guardar_tareas($archivo_tareas, $tareas);
+    // Recargar la página para aplicar los cambios
+    header("Refresh:0");
+}
+
+// Manejar el envío del formulario para eliminar una tarea
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['eliminar'])) {
+    $indice = $_POST['indice'];
+    // Eliminar la tarea del array de tareas
+    array_splice($tareas, $indice, 1);
+    // Guardar las tareas actualizadas
+    guardar_tareas($archivo_tareas, $tareas);
+    // Recargar la página para aplicar los cambios
+    header("Refresh:0");
+}
 ?>
 
 <!DOCTYPE html>
@@ -49,63 +88,37 @@ $tareas = cargar_tareas($archivo_tareas);
 
 <div class="container">
     <h1>Lista de tareas - <?php echo $nombre_archivo; ?></h1>
-        
-    </h1>
-
     <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>?nombre_archivo=<?php echo urlencode($nombre_archivo); ?>" method="post">
-    <input type="text" name="descripcion" placeholder="Descripción de la tarea" required  autocomplete="off">
+        <input type="text" name="descripcion" placeholder="Descripción de la tarea" required  autocomplete="off">
         <button type="submit" name="agregar">Agregar Tarea</button>
     </form>
 
     <ul>
         <?php
-        if (isset($_POST['agregar'])) {
-            // Código PHP para agregar una tarea
-            $descripcion = $_POST['descripcion'];
-            if (!tarea_existe($tareas, $descripcion)){
-
-                $tarea = [
-                    'descripcion' => $descripcion,
-                    'completada' => false
-                ];
-                $tareas[] = $tarea;
-            
-                guardar_tareas($archivo_tareas, $tareas);
-            }
-        } elseif (isset($_POST['eliminar'])) {
-            // Código PHP para eliminar una tarea
-            $indice = $_POST['indice'];
-            unset($tareas[$indice]);
-            guardar_tareas($archivo_tareas, $tareas);
-        } elseif (isset($_POST['completar'])) {
-            // Código PHP para marcar una tarea como completada
-            $indice = $_POST['completar'];
-            $tareas[$indice]['completada'] = true;
-            guardar_tareas($archivo_tareas, $tareas);
-        }
-
-        // Código PHP para mostrar la lista de tareas
         if (!empty($tareas)) {
             foreach ($tareas as $indice => $tarea) {
-                echo '<li';
+                echo '
+                <container class="TaskContainer">
+                    <li';
                 if ($tarea['completada']) {
                     echo ' style="text-decoration: line-through; color: darkgray;"';
                 }
                 echo '>' . $tarea['descripcion'];
-
-                // Botón de eliminar
-                echo '<form method="post" style="display: inline;">
-                        <input type="hidden" name="indice" value="' . $indice . '">
-                        <button type="submit" name="eliminar">(X)</button>
-                      </form>';
-
+    
                 // Botón de completar
                 echo '<form method="post" style="display: inline;">
-                        <input type="hidden" name="completar" value="' . $indice . '">
-                        <button type="submit">Completar</button>
-                      </form>';
-
-                echo '</li>';
+                            <input type="hidden" name="completar" value="' . $indice . '">
+                            <button type="submit" class="complete-button">Completar</button>
+                          </form>';
+    
+                // Botón de eliminar
+                echo '<form method="post" style="display: inline;">
+                            <input type="hidden" name="eliminar" value="' . $indice . '">
+                            <button type="submit" class="delete-button">(X)</button>
+                          </form>';
+    
+                echo '</li>
+                </container>';
             }
         } else {
             echo '<li>No hay tareas pendientes.</li>';
